@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	template="/templates/modelo.xhtml">
+
+	<ui:define name="conteudo">
+	<h:form id="formListagem">
+		<p:panel header="Fornecedores - Listagem">
+			<p:dataTable id="tabela" emptyMessage="Nenhum registro encontrado."
+				paginator="true" value="#{fornecedorBean.fornecedores}" var="cursor"
+				rows="5" paginatorPosition="top">
+				<f:facet name="header">
+					<p:commandButton value="Novo" oncomplete="PF('dialogo').show();"
+						actionListener="#{fornecedorBean.novo()}"
+						update="mensagem formCadastro:painel" />
+				</f:facet>
+				<p:column headerText="Descrição" sortBy="#{cursor.descricao}"
+					filterBy="#{cursor.descricao}">
+				#{cursor.descricao}
+				</p:column>
+				<p:column headerText="Opções">
+					<p:commandButton icon="ui-icon-trash"
+						actionListener="#{fornecedorBean.excluir(cursor)}" process="@this"
+						update="mensagem formListagem:tabela">
+						<p:confirm header="Confirmação"
+							message="Deseja excluir o fornecedor?" icon="ui-icon-alert" />
+						<f:attribute name="forncedorSelecionado" value="#{cursor}" />
+					</p:commandButton>
+
+					<p:commandButton icon="ui-icon-pencil"
+						actionListener="#{fornecedorBean.editar(cursor)}" process="@this"
+						oncomplete="PF('dialogo').show();" update="formCadastro:painel">
+						<f:attribute name="fornecedorSelecionado" value="#{cursor}" />
+					</p:commandButton>
+				</p:column>
+			</p:dataTable>
+			
+			<p:confirmDialog global="true">
+				<p:commandButton value="Sim" type="button"
+					styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+				<p:commandButton value="Não" type="button"
+					styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+			</p:confirmDialog>
+
+		</p:panel>
+	</h:form>
+
+	<p:dialog header="Fornecedores - Cadastro" widgetVar="dialogo"
+		resizable="false" modal="true">
+		<h:form id="formCadastro">
+			<h:panelGrid id="painel">
+				<p:outputLabel value="Descrição" />
+				<p:inputText maxlength="50" size="30" 
+				value="#{fornecedorBean.fornecedor.descricao}"
+				required="true" requiredMessage="O campo descrição é obrigatório"/>
+			</h:panelGrid>
+			
+			<h:panelGrid columns="2">
+				<p:commandButton value="Salvar" 
+				actionListener="#{fornecedorBean.salvar()}"
+				update="mensagem formCadastro:painel formListagem:tabela"/>
+				<p:commandButton value="Cancelar" oncomplete="PF('dialogo').hide();" 
+				update=""/>
+			</h:panelGrid>
+		</h:form>
+	</p:dialog>
+</ui:define>
+</ui:composition>

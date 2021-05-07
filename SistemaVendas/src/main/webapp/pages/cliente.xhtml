@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	template="/templates/modelo.xhtml">
+
+	<ui:define name="conteudo">
+	<h:form id="formListagem">
+		<p:panel header="Clientes - Listagem">
+			<p:dataTable id="tabela" emptyMessage="Nenhum registro encontrado."
+				paginator="true" value="#{clienteBean.clientes}" var="cursor" rows="5" paginatorPosition="top">
+				<f:facet name="header">
+					<p:commandButton value="Novo" actionListener="#{clienteBean.novo()}"
+					 oncomplete="PF('dialogo').show();" update="mensagem :formCadastro:painel">
+					 <f:actionListener
+							type="org.omnifaces.eventlistener.ResetInputAjaxActionListener" />
+					 </p:commandButton>
+				</f:facet>
+				<p:column headerText="Nome">
+				<h:outputText value="#{cursor.pessoa.nome}" />
+				</p:column>
+			
+				<p:column headerText="Data de Cadastro">
+					<h:outputText value="#{cursor.dataCadastro}">
+					<f:convertDateTime locale="pt_AO"/>
+					</h:outputText>
+				</p:column>
+
+				<p:column headerText="Liberado">
+					<p:selectBooleanCheckbox value="#{cursor.liberdado}" disabled="true"/>
+				</p:column>
+				<p:column headerText="Opções">
+				<p:commandButton icon="ui-icon-trash" 
+						actionListener="#{clienteBean.excluir(cursor)}"
+						process="@this" update="mensagem formListagem:tabela">
+						<p:confirm header="Confirmação" message="Deseja excluir o cliente?"
+							icon="ui-icon-alert" />
+						<f:attribute name="clienteSelecionado" value="#{cursor}" />
+					</p:commandButton>
+
+					<p:commandButton icon="ui-icon-pencil"
+						actionListener="#{clienteBean.editar(cursor)}"
+						update="mensagem formCadastro:painel"
+						oncomplete="PF('dialogo').show();">
+						<f:attribute name="clienteSelecionado" value="#{cursor}" />
+						<f:actionListener
+							type="org.omnifaces.eventlistener.ResetInputAjaxActionListener" />
+					</p:commandButton>
+				
+				</p:column>
+
+			</p:dataTable>
+		</p:panel>
+	</h:form>
+
+	<p:dialog header="Cliente - Cadastro" widgetVar="dialogo"
+		draggable="false" resizable="false" modal="true">
+		<h:form id="formCadastro">
+			<h:panelGrid id="painel">
+				<p:outputLabel for="pessoa" value="Pessoa:" />
+				<p:selectOneMenu id="pessoa" filter="true" value="#{clienteBean.cliente.pessoa}"
+				required="true" requiredMessage="O compo pessoa é obrigatório"
+				converter="omnifaces.SelectItemsConverter">
+					<f:selectItem noSelectionOption="true" itemLabel="Seleccione uma pessoa" />
+					<f:selectItems value="#{clienteBean.pessoas}" var="cursor" 
+					itemValue="#{cursor}" itemLabel="#{cursor.nome}"/>
+				</p:selectOneMenu>
+				
+				<p:outputLabel for="dataCadastro" value="Data de Cadastro:" />
+				<p:calendar id="dataCadastro" value="#{clienteBean.cliente.dataCadastro}" required="true"
+				requiredMessage="O campo Data de cadastro é obrigatório" size="30" locale="pt_BR"/> 
+
+				<p:outputLabel for="liberado" value="Ativo:" />
+				<p:selectBooleanCheckbox id="liberado" value="#{clienteBean.cliente.liberdado}"
+				required="true" requiredMessage="O compo liberado é obrigatório"/>
+
+	
+			</h:panelGrid>
+
+
+			<h:panelGrid columns="2">
+				<p:commandButton value="Salvar" actionListener="#{clienteBean.salvar()}" update="mensagem formCadastro:painel formListagem:tabela"/>
+				<p:commandButton value="Cancelar" oncomplete="PF('dialogo').hide();" />
+			</h:panelGrid>
+		</h:form>
+	</p:dialog>
+</ui:define>
+</ui:composition>
